@@ -1,25 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_cluster_app/core/utils/usersesion.dart';
 import 'package:smart_cluster_app/features/auth/screens/area_zones_screen.dart';
 import 'package:smart_cluster_app/features/auth/screens/gangs_screen.dart';
 import 'package:smart_cluster_app/features/auth/screens/houses_screen.dart';
+import 'package:smart_cluster_app/features/auth/screens/masteriuran_screen.dart';
+import 'package:smart_cluster_app/features/auth/screens/profile_screen.dart';
 import 'package:smart_cluster_app/features/auth/screens/residential_area_form.dart';
 import 'package:smart_cluster_app/widgets/menu_components.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
-
   @override
   State<MainMenuScreen> createState() => _MainMenuScreenState();
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
   int _currentIndex = 0;
+  String? userName;
+  List<Widget> get _pages => [
+    HomeTab(userName: userName ?? '-'),
+    const TaskTab(),
+    const SettingTab(),
+  ];
 
-  final List<Widget> _pages = const [HomeTab(), TaskTab(), SettingTab()];
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    await UserSession().loadFromPreferences();
+    setState(() {
+      userName = UserSession().userName;
+    });
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // hapus semua data login
+    if (!mounted) return;
+    // ganti route ke login (sesuaikan route-nya)
+    Navigator.of(context).pushReplacementNamed('/login');
+  }
+
+  void _goToProfile() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const ProfileScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading:
+            false, // jangan tampilkan tombol back otomatis
+        backgroundColor: Colors.blueAccent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Profile',
+            onPressed: _goToProfile,
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Konfirmasi Logout'),
+                  content: const Text('Apakah Anda yakin ingin logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      child: const Text('Logout'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                await _logout();
+              }
+            },
+          ),
+        ],
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -55,19 +127,19 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 //Mulai Tab Home
 
 class HomeTab extends StatelessWidget {
-  const HomeTab({super.key});
-
+  final String userName;
+  const HomeTab({super.key, required this.userName});
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
           backgroundColor: Colors.blueAccent,
-          expandedHeight: 120,
+          expandedHeight: 40,
           floating: true,
           flexibleSpace: FlexibleSpaceBar(
             background: Padding(
-              padding: const EdgeInsets.only(top: 40, left: 16),
+              padding: const EdgeInsets.only(top: 20, left: 16),
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Row(
@@ -77,9 +149,9 @@ class HomeTab extends StatelessWidget {
                       child: Icon(Icons.person, color: Colors.blueAccent),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Hai, Warga!',
-                      style: TextStyle(
+                    Text(
+                      'Hai warga, $userName !',
+                      style: const TextStyle(
                         fontSize: 20,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -102,7 +174,7 @@ class HomeTab extends StatelessWidget {
                 GridMenuSection(
                   items: [
                     MenuItemData(
-                      icon: Icons.attach_money,
+                      icon: Icons.list,
                       title: 'Iuran',
                       description: 'Daftar jenis iuran.',
                     ),
@@ -220,6 +292,18 @@ class SettingTab extends StatelessWidget {
             );
           },
         ),
+        MenuCard(
+          icon: Icons.list,
+          title: 'Jenis Iuran',
+          description:
+              'Masukan jenis iuran apa saja dan sampai kapan berlakunya.',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MasterIuranScreen()),
+            );
+          },
+        ),
         const SizedBox(height: 24),
         SectionTitle(title: 'User'),
         MenuCard(
@@ -235,7 +319,7 @@ class SettingTab extends StatelessWidget {
         ),
         MenuCard(
           icon: Icons.accessibility,
-          title: 'Rolse User',
+          title: 'Role User',
           description: 'Kelola akses pengguna.',
         ),
       ],

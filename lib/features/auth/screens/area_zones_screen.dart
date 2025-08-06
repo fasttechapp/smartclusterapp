@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:smart_cluster_app/core/services/api_service.dart';
+import 'package:smart_cluster_app/core/utils/usersesion.dart';
 import 'package:smart_cluster_app/widgets/showokdialog.dart';
 import 'package:smart_cluster_app/widgets/standard_button.dart';
 
@@ -57,7 +58,7 @@ class _AreaZonesPageState extends State<AreaZoneScreen> {
       'residential_id': _selectedResidentialId,
       'rw': _rwController.text,
       'rt': _rtController.text,
-      'add_user': 'username_dummy', // ganti dengan user login nanti
+      'add_user': UserSession().email,
     };
 
     try {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:smart_cluster_app/core/services/api_service.dart';
 import 'package:smart_cluster_app/core/utils/input_formatters.dart';
+import 'package:smart_cluster_app/core/utils/usersesion.dart';
 import 'package:smart_cluster_app/widgets/showokdialog.dart';
 import 'package:smart_cluster_app/widgets/standard_button.dart';
 
@@ -116,7 +117,7 @@ class _GangsPageState extends State<GangsScreen> {
       'rw': _selectedRW,
       'rt': _selectedRT,
       'nama_gang': _namaGangController.text.trim(),
-      'add_user': 'username_dummy',
+      'add_user': UserSession().email,
     };
 
     try {

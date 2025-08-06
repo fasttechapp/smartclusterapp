@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:smart_cluster_app/core/services/api_service.dart';
 import 'package:smart_cluster_app/core/utils/input_formatters.dart';
+import 'package:smart_cluster_app/core/utils/usersesion.dart';
 import 'package:smart_cluster_app/widgets/showokdialog.dart';
 import 'package:smart_cluster_app/widgets/standard_button.dart';
 
@@ -43,7 +44,7 @@ class _ResidentialAreaFormState extends State<ResidentialAreaForm> {
       'kecamatan': _kecamatanController.text.trim(),
       'kabupaten': _kabupatenController.text.trim(),
       'provinsi': _provinsiController.text.trim(),
-      'add_user': 'username_dummy',
+      'add_user': UserSession().email,
     };
 
     try {

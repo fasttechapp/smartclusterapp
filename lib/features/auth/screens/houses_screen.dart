@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_cluster_app/core/services/api_service.dart';
 import 'package:smart_cluster_app/core/utils/input_formatters.dart';
 import 'package:smart_cluster_app/core/utils/logger.dart' show log;
+import 'package:smart_cluster_app/core/utils/usersesion.dart';
 import 'package:smart_cluster_app/widgets/showokdialog.dart';
 import 'package:smart_cluster_app/widgets/standard_button.dart';
 
@@ -107,19 +108,6 @@ class _HousesScreenState extends State<HousesScreen> {
     }
   }
 
-  // void _loadHouses() async {
-  //   if (_residentialId == null || _selectedKodeGang == null) return;
-  //   final response = await ApiService.get(
-  //     'houses?residential_id=$_residentialId&kode_gang=$_selectedKodeGang',
-  //   );
-  //   if (response.statusCode == 200) {
-  //     final List data = jsonDecode(response.body);
-  //     setState(() {
-  //       _houses = data.cast<Map<String, dynamic>>();
-  //     });
-  //   }
-  // }
-
   void _submit() async {
     final noRumah = _noRumahController.text.trim().toUpperCase();
     final pemilik = _pemilikController.text.trim();
@@ -133,7 +121,7 @@ class _HousesScreenState extends State<HousesScreen> {
       'no_rumah': noRumah,
       'pemilik': pemilik,
       'penghuni': penghuni,
-      'add_user': 'admin', // ubah sesuai login user
+      'add_user': UserSession().email,
     };
 
     final response = await ApiService.post('houses', body);
@@ -315,7 +303,7 @@ class _HousesScreenState extends State<HousesScreen> {
                   fillColor: Colors.blue.shade50,
                   counterText: "",
                 ),
-                maxLength: 5,
+                maxLength: 6,
                 validator: (val) =>
                     val == null || val.trim().isEmpty ? 'Wajib diisi' : null,
               ),
